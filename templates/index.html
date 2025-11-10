@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de Horarios - ING. CIVIL EN INFORMÁTICA Y TELECOMUNICACIONES</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+        
+        .sidebar {
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            padding: 25px;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+        
+        .main-content {
+            padding: 25px;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+        
+        .section-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        .course-search {
+            margin-bottom: 20px;
+        }
+        
+        .course-search input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .course-search input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .course-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .course-item {
+            padding: 12px;
+            border-bottom: 1px solid #f1f3f5;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .course-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .course-item.selected {
+            background: #e7f5ff;
+            border-left: 4px solid #667eea;
+        }
+        
+        .course-code {
+            font-weight: bold;
+            color: #495057;
+            font-size: 0.95em;
+        }
+        
+        .course-name {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-top: 3px;
+        }
+        
+        .course-credits {
+            font-size: 0.8em;
+            color: #868e96;
+            margin-top: 3px;
+        }
+        
+        .selected-courses {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+        }
+        
+        .selected-course-tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin: 5px 5px 5px 0;
+            font-size: 0.9em;
+        }
+        
+        .selected-course-tag .remove {
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .schedule-results {
+            margin-top: 20px;
+        }
+        
+        .schedule-card {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .schedule-card:hover {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+        
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .schedule-number {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .course-schedule {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .course-schedule-header {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .course-section {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .event-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f3f5;
+            display: grid;
+            grid-template-columns: 150px 200px 1fr;
+            gap: 15px;
+            font-size: 0.9em;
+        }
+        
+        .event-item:last-child {
+            border-bottom: none;
+        }
+        
+        .event-type {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .event-schedule {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .event-professor {
+            color: #6c757d;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .no-results-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .calendar-view {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(5, 1fr);
+            gap: 2px;
+            background: #dee2e6;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            min-width: 700px;
+        }
+        
+        .calendar-header {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .time-slot {
+            background: #f8f9fa;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.85em;
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        .calendar-cell {
+            background: white;
+            padding: 8px;
+            min-height: 60px;
+            font-size: 0.8em;
+        }
+        
+        .calendar-event {
+            background: #e7f5ff;
+            border-left: 3px solid #667eea;
+            padding: 5px;
+            margin: 2px 0;
+            border-radius: 3px;
+        }
+        
+        .info-message {
+            background: #e7f5ff;
+            border-left: 4px solid #1c7ed6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .optimization-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        
+        .optimization-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .event-campus {
+            color: #868e96;
+            font-size: 0.85em;
+            margin-top: 3px;
+        }
+        
+        .optimization-badge {
+            display: inline-block;
+            background: #e7f5ff;
+            color: #1c7ed6;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 Buscador de Horarios</h1>
+            <p>Ingeniería Civil en Informática y Telecomunicaciones</p>
+        </header>
+        
+        <div class="content">
+            <div class="sidebar">
+                <div class="section-title">Selecciona tus Ramos</div>
+                
+                <div class="course-search">
+                    <input type="text" id="searchInput" placeholder="Buscar ramo por código o nombre...">
+                </div>
+                
+                <div class="course-list" id="courseList">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Cargando ramos...
+                    </div>
+                </div>
+                
+                <div class="selected-courses">
+                    <div class="section-title">Ramos Seleccionados (<span id="selectedCount">0</span>)</div>
+                    <div id="selectedCourses"></div>
+                    
+                    <div class="section-title" style="margin-top: 20px;">Optimización</div>
+                    <select id="optimizationSelect" class="optimization-select">
+                        <option value="">Sin optimización</option>
+                        <option value="morning">🌅 Preferir mañanas</option>
+                        <option value="afternoon">🌆 Preferir tardes</option>
+                        <option value="gaps">⚡ Minimizar ventanas</option>
+                    </select>
+                    
+                    <button class="btn btn-primary" id="generateBtn" disabled>
+                        Generar Horarios
+                    </button>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div id="resultsContainer">
+                    <div class="info-message">
+                        👈 Selecciona los ramos que quieres tomar en el panel izquierdo y luego haz clic en "Generar Horarios" para encontrar combinaciones sin conflictos de horario.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let allCourses = [];
+        let selectedCourses = [];
+        
+        // Load courses on page load
+        async function loadCourses() {
+            try {
+                const response = await fetch('/api/courses');
+                allCourses = await response.json();
+                displayCourses(allCourses);
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                document.getElementById('courseList').innerHTML = 
+                    '<div class="no-results">Error al cargar los ramos</div>';
+            }
+        }
+        
+        function displayCourses(courses) {
+            const courseList = document.getElementById('courseList');
+            
+            if (courses.length === 0) {
+                courseList.innerHTML = '<div class="no-results">No se encontraron ramos</div>';
+                return;
+            }
+            
+            courseList.innerHTML = courses.map(course => `
+                <div class="course-item" data-code="${course.code}" onclick="toggleCourse('${course.code}')">
+                    <div class="course-code">${course.code}</div>
+                    <div class="course-name">${course.name}</div>
+                    <div class="course-credits">${course.credits} créditos • ${course.sections_count} secciones</div>
+                </div>
+            `).join('');
+        }
+        
+        function toggleCourse(courseCode) {
+            const index = selectedCourses.indexOf(courseCode);
+            
+            if (index > -1) {
+                selectedCourses.splice(index, 1);
+            } else {
+                selectedCourses.push(courseCode);
+            }
+            
+            updateSelectedCourses();
+            updateCourseListSelection();
+        }
+        
+        function updateCourseListSelection() {
+            document.querySelectorAll('.course-item').forEach(item => {
+                const code = item.getAttribute('data-code');
+                if (selectedCourses.includes(code)) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+        
+        function updateSelectedCourses() {
+            const container = document.getElementById('selectedCourses');
+            const count = document.getElementById('selectedCount');
+            const generateBtn = document.getElementById('generateBtn');
+            
+            count.textContent = selectedCourses.length;
+            
+            if (selectedCourses.length === 0) {
+                container.innerHTML = '<p style="color: #6c757d; font-size: 0.9em;">Ningún ramo seleccionado</p>';
+                generateBtn.disabled = true;
+            } else {
+                container.innerHTML = selectedCourses.map(code => {
+                    const course = allCourses.find(c => c.code === code);
+                    return `
+                        <span class="selected-course-tag">
+                            ${code}
+                            <span class="remove" onclick="toggleCourse('${code}')">&times;</span>
+                        </span>
+                    `;
+                }).join('');
+                generateBtn.disabled = false;
+            }
+        }
+        
+        async function generateSchedules() {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const generateBtn = document.getElementById('generateBtn');
+            const optimization = document.getElementById('optimizationSelect').value;
+            
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generando...';
+            
+            resultsContainer.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Buscando combinaciones válidas de horarios...
+                </div>
+            `;
+            
+            try {
+                const response = await fetch('/api/generate-schedules', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        courses: selectedCourses,
+                        max_results: 50,
+                        optimization: optimization || null
+                    })
+                });
+                
+                const data = await response.json();
+                displaySchedules(data.schedules, data.count, data.optimization);
+            } catch (error) {
+                console.error('Error generating schedules:', error);
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">⚠️</div>
+                        <div>Error al generar horarios. Por favor intenta nuevamente.</div>
+                    </div>
+                `;
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generar Horarios';
+            }
+        }
+        
+        function displaySchedules(schedules, count, optimization) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            if (schedules.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">😔</div>
+                        <div><strong>No se encontraron horarios compatibles</strong></div>
+                        <div style="margin-top: 10px;">Los ramos seleccionados tienen conflictos de horario en todas las combinaciones posibles.</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            const optimizationLabels = {
+                'morning': '🌅 Preferir mañanas',
+                'afternoon': '🌆 Preferir tardes',
+                'gaps': '⚡ Minimizar ventanas'
+            };
+            
+            const optimizationBadge = optimization ? 
+                `<span class="optimization-badge">${optimizationLabels[optimization]}</span>` : '';
+            
+            const statsHtml = `
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number">${count}</div>
+                        <div class="stat-label">Horarios Válidos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${selectedCourses.length}</div>
+                        <div class="stat-label">Ramos</div>
+                    </div>
+                </div>
+                ${optimization ? `<div style="text-align: center; margin-bottom: 20px;">${optimizationBadge}</div>` : ''}
+            `;
+            
+            const schedulesHtml = schedules.map((schedule, index) => {
+                const coursesHtml = Object.entries(schedule).map(([code, info]) => `
+                    <div class="course-schedule">
+                        <div class="course-schedule-header">
+                            ${code} - ${info.name}
+                        </div>
+                        <div class="course-section">
+                            📋 ${info.section} • 📦 ${info.package}
+                        </div>
+                        ${info.events.map(event => `
+                            <div class="event-item">
+                                <div class="event-type">${event.type}</div>
+                                <div class="event-schedule">${event.schedule}</div>
+                                <div>
+                                    <div class="event-professor">${event.professor || 'Sin profesor asignado'}</div>
+                                    <div class="event-campus">📍 ${event.campus || 'Sin sede'}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `).join('');
+                
+                return `
+                    <div class="schedule-card">
+                        <div class="schedule-header">
+                            <div class="schedule-number">Opción ${index + 1}</div>
+                        </div>
+                        ${coursesHtml}
+                    </div>
+                `;
+            }).join('');
+            
+            resultsContainer.innerHTML = statsHtml + schedulesHtml;
+        }
+        
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = allCourses.filter(course => 
+                course.code.toLowerCase().includes(searchTerm) ||
+                course.name.toLowerCase().includes(searchTerm)
+            );
+            displayCourses(filtered);
+            updateCourseListSelection();
+        });
+        
+        // Generate button click
+        document.getElementById('generateBtn').addEventListener('click', generateSchedules);
+        
+        // Initialize
+        loadCourses();
+    </script>
+</body>
+</html>
