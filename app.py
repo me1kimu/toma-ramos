@@ -55,8 +55,9 @@ def generate_schedules():
     selected_courses = data.get('courses', [])
     max_results = data.get('max_results', 50)
     optimization = data.get('optimization', None)  # 'morning', 'afternoon', 'gaps', or None
+    exclude_professors = data.get('exclude_professors', None)  # Comma-separated string of professor names
     
-    schedules = processor.generate_schedules(selected_courses, max_results, optimization)
+    schedules = processor.generate_schedules(selected_courses, max_results, optimization, exclude_professors)
     
     return jsonify(clean_nan({
         'schedules': schedules,

@@ -254,7 +254,7 @@ class ScheduleProcessor:
         return 0
     
     def generate_schedules(self, selected_courses: List[str], max_results: int = 100, 
-                          optimization: str = None) -> List[Dict]:
+                          optimization: str = None, exclude_professors: str = None) -> List[Dict]:
         """
         Generate valid schedule combinations for selected courses.
         
@@ -262,6 +262,7 @@ class ScheduleProcessor:
             selected_courses: List of course codes
             max_results: Maximum number of results to return
             optimization: 'morning', 'afternoon', 'gaps', or None for unordered
+            exclude_professors: Comma-separated string of professor names to exclude
         
         Returns:
             List of valid schedule combinations
@@ -269,11 +270,32 @@ class ScheduleProcessor:
         if not selected_courses:
             return []
         
+        # Parse excluded professors
+        excluded_profs = set()
+        if exclude_professors:
+            excluded_profs = {name.strip().lower() for name in exclude_professors.split(',')}
+        
         # Get all sections for each selected course
         course_sections = {}
         for course_code in selected_courses:
             if course_code in self.courses:
-                course_sections[course_code] = self.get_course_sections(course_code)
+                sections = self.get_course_sections(course_code)
+                
+                # Filter out sections with excluded professors
+                if excluded_profs:
+                    filtered_sections = []
+                    for section in sections:
+                        has_excluded_prof = False
+                        for event in section['events']:
+                            prof = event.get('professor', '')
+                            if prof and prof.lower().strip() in excluded_profs:
+                                has_excluded_prof = True
+                                break
+                        if not has_excluded_prof:
+                            filtered_sections.append(section)
+                    course_sections[course_code] = filtered_sections
+                else:
+                    course_sections[course_code] = sections
         
         # Generate all possible combinations
         section_combinations = []
