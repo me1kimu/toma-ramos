@@ -48,6 +48,13 @@ def get_course_sections(course_code):
     return jsonify(clean_nan(sections))
 
 
+@app.route('/api/professors')
+def get_professors():
+    """Get list of all professors."""
+    professors = processor.get_all_professors()
+    return jsonify(professors)
+
+
 @app.route('/api/generate-schedules', methods=['POST'])
 def generate_schedules():
     """Generate valid schedule combinations."""

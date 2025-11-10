@@ -81,6 +81,17 @@ class ScheduleProcessor:
             })
         return sections
     
+    def get_all_professors(self) -> List[str]:
+        """Get list of all unique professors sorted alphabetically."""
+        professors = set()
+        for course_info in self.courses.values():
+            for section_info in course_info['sections'].values():
+                for event in section_info['events']:
+                    professor = event.get('professor', '').strip()
+                    if professor:
+                        professors.add(professor)
+        return sorted(list(professors))
+    
     def parse_schedule(self, schedule_str: str) -> List[Tuple[str, int, int]]:
         """
         Parse schedule string into list of (day, start_minutes, end_minutes).
