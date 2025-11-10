@@ -32,6 +32,7 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
         
         header h1 {
@@ -42,6 +43,25 @@
         header p {
             font-size: 1.1em;
             opacity: 0.9;
+        }
+        
+        .dark-mode-toggle {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
         }
         
         .content {
@@ -407,11 +427,346 @@
             font-size: 0.85em;
             font-weight: 600;
         }
+        
+        /* Dark mode styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        body.dark-mode .container {
+            background: #0f3460;
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        body.dark-mode .sidebar {
+            background: #16213e;
+            border-right: 1px solid #1a1a2e;
+        }
+        
+        body.dark-mode .section-title {
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .course-search input {
+            background: #0f3460;
+            border-color: #1a1a2e;
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .course-list {
+            background: #0f3460;
+            border-color: #1a1a2e;
+        }
+        
+        body.dark-mode .course-item {
+            border-bottom: 1px solid #1a1a2e;
+        }
+        
+        body.dark-mode .course-item:hover {
+            background: #1a1a2e;
+        }
+        
+        body.dark-mode .course-item.selected {
+            background: #16213e;
+            border-left-color: #667eea;
+        }
+        
+        body.dark-mode .course-code {
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .course-name,
+        body.dark-mode .course-credits {
+            color: #b0b0b0;
+        }
+        
+        body.dark-mode .selected-course-tag {
+            background: #667eea;
+            color: white;
+        }
+        
+        body.dark-mode .optimization-select {
+            background: #0f3460;
+            border-color: #1a1a2e;
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        body.dark-mode .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        body.dark-mode .schedule-card {
+            background: #16213e;
+            border-color: #1a1a2e;
+        }
+        
+        body.dark-mode .schedule-card:hover {
+            border-color: #667eea;
+        }
+        
+        body.dark-mode .course-schedule {
+            background: #0f3460;
+            border-left-color: #667eea;
+        }
+        
+        body.dark-mode .course-schedule-header {
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .course-section {
+            color: #b0b0b0;
+        }
+        
+        body.dark-mode .event-type {
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .event-professor,
+        body.dark-mode .event-campus {
+            color: #b0b0b0;
+        }
+        
+        body.dark-mode .info-message {
+            background: #16213e;
+            border-left-color: #667eea;
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .stats {
+            background: #16213e;
+        }
+        
+        body.dark-mode .stat-label {
+            color: #b0b0b0;
+        }
+        
+        body.dark-mode .calendar-header {
+            background: #667eea;
+        }
+        
+        body.dark-mode .time-slot {
+            background: #16213e;
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .calendar-cell {
+            background: #0f3460;
+        }
+        
+        body.dark-mode .calendar-event {
+            background: #16213e;
+            border-left-color: #667eea;
+        }
+        
+        /* Calendar view styles */
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+        
+        .view-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .view-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .view-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        body.dark-mode .view-btn {
+            background: #0f3460;
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        body.dark-mode .view-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .calendar-view {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .calendar-view.active {
+            display: block;
+        }
+        
+        .list-view {
+            display: block;
+        }
+        
+        .list-view.hidden {
+            display: none;
+        }
+        
+        .weekly-calendar {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        body.dark-mode .weekly-calendar {
+            background: #16213e;
+        }
+        
+        .calendar-header-row {
+            display: grid;
+            grid-template-columns: 100px repeat(5, 1fr);
+            background: #667eea;
+            color: white;
+        }
+        
+        .calendar-header-cell {
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .calendar-header-cell:last-child {
+            border-right: none;
+        }
+        
+        .calendar-body {
+            display: grid;
+            grid-template-columns: 100px repeat(5, 1fr);
+            min-height: 400px;
+        }
+        
+        .time-column {
+            background: #f8f9fa;
+            border-right: 2px solid #dee2e6;
+        }
+        
+        body.dark-mode .time-column {
+            background: #0f3460;
+            border-right-color: #1a1a2e;
+        }
+        
+        .time-label {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 0.85em;
+            color: #495057;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        body.dark-mode .time-label {
+            border-bottom-color: #1a1a2e;
+            color: #b0b0b0;
+        }
+        
+        .day-column {
+            border-right: 1px solid #dee2e6;
+            position: relative;
+        }
+        
+        body.dark-mode .day-column {
+            border-right-color: #1a1a2e;
+        }
+        
+        .day-column:last-child {
+            border-right: none;
+        }
+        
+        .calendar-slot {
+            height: 60px;
+            border-bottom: 1px solid #dee2e6;
+            position: relative;
+        }
+        
+        body.dark-mode .calendar-slot {
+            border-bottom-color: #1a1a2e;
+        }
+        
+        .class-block {
+            position: absolute;
+            left: 2px;
+            right: 2px;
+            background: #e7f5ff;
+            border-left: 3px solid #667eea;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .class-block:hover {
+            transform: scale(1.02);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            z-index: 10;
+        }
+        
+        body.dark-mode .class-block {
+            background: #1a1a2e;
+            border-left-color: #667eea;
+        }
+        
+        .class-code {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 2px;
+        }
+        
+        .class-type {
+            color: #495057;
+            font-size: 0.9em;
+        }
+        
+        body.dark-mode .class-type {
+            color: #b0b0b0;
+        }
+        
+        .class-time {
+            color: #6c757d;
+            font-size: 0.85em;
+            margin-top: 2px;
+        }
+        
+        body.dark-mode .class-time {
+            color: #808080;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
+            <button class="dark-mode-toggle" id="darkModeToggle" onclick="toggleDarkMode()">
+                🌙 Modo Oscuro
+            </button>
             <h1>🎓 Buscador de Horarios</h1>
             <p>Ingeniería Civil en Informática y Telecomunicaciones</p>
         </header>
@@ -644,17 +999,164 @@
                     </div>
                 `).join('');
                 
+                const calendarHtml = generateCalendarView(schedule);
+                
                 return `
                     <div class="schedule-card">
                         <div class="schedule-header">
                             <div class="schedule-number">Opción ${index + 1}</div>
                         </div>
-                        ${coursesHtml}
+                        <div class="view-toggle">
+                            <button class="view-btn active" onclick="switchView(${index}, 'list')">📋 Vista Lista</button>
+                            <button class="view-btn" onclick="switchView(${index}, 'calendar')">📅 Vista Calendario</button>
+                        </div>
+                        <div class="list-view" id="list-view-${index}">
+                            ${coursesHtml}
+                        </div>
+                        <div class="calendar-view" id="calendar-view-${index}">
+                            ${calendarHtml}
+                        </div>
                     </div>
                 `;
             }).join('');
             
             resultsContainer.innerHTML = statsHtml + schedulesHtml;
+        }
+        
+        function switchView(scheduleIndex, viewType) {
+            const listView = document.getElementById(`list-view-${scheduleIndex}`);
+            const calendarView = document.getElementById(`calendar-view-${scheduleIndex}`);
+            const buttons = document.querySelectorAll(`.schedule-card:nth-child(${scheduleIndex + 2}) .view-btn`);
+            
+            if (viewType === 'list') {
+                listView.style.display = 'block';
+                calendarView.classList.remove('active');
+                buttons[0].classList.add('active');
+                buttons[1].classList.remove('active');
+            } else {
+                listView.style.display = 'none';
+                calendarView.classList.add('active');
+                buttons[0].classList.remove('active');
+                buttons[1].classList.add('active');
+            }
+        }
+        
+        function generateCalendarView(schedule) {
+            const days = ['LU', 'MA', 'MI', 'JU', 'VI'];
+            const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+            const timeSlots = [];
+            
+            // Generate time slots from 8:00 to 20:00
+            for (let hour = 8; hour <= 20; hour++) {
+                timeSlots.push(`${hour}:00`);
+            }
+            
+            // Organize events by day and time
+            const dayEvents = {};
+            days.forEach(day => dayEvents[day] = []);
+            
+            Object.entries(schedule).forEach(([code, info]) => {
+                info.events.forEach(event => {
+                    if (event.parsed_schedule) {
+                        event.parsed_schedule.forEach(([day, startMin, endMin]) => {
+                            if (dayEvents[day]) {
+                                dayEvents[day].push({
+                                    code: code,
+                                    name: info.name,
+                                    type: event.type,
+                                    start: startMin,
+                                    end: endMin,
+                                    startTime: minutesToTime(startMin),
+                                    endTime: minutesToTime(endMin)
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+            
+            let calendarHtml = `
+                <div class="weekly-calendar">
+                    <div class="calendar-header-row">
+                        <div class="calendar-header-cell">Hora</div>
+                        ${dayNames.map(name => `<div class="calendar-header-cell">${name}</div>`).join('')}
+                    </div>
+                    <div class="calendar-body">
+                        <div class="time-column">
+                            ${timeSlots.map(time => `<div class="time-label">${time}</div>`).join('')}
+                        </div>
+            `;
+            
+            days.forEach(day => {
+                const events = dayEvents[day];
+                calendarHtml += `<div class="day-column">`;
+                
+                timeSlots.forEach((time, slotIndex) => {
+                    const slotStart = (8 + slotIndex) * 60;
+                    const slotEnd = slotStart + 60;
+                    
+                    // Find events that overlap with this slot
+                    const overlappingEvents = events.filter(event => 
+                        event.start < slotEnd && event.end > slotStart
+                    );
+                    
+                    calendarHtml += `<div class="calendar-slot">`;
+                    
+                    // Only show event in the slot where it starts
+                    overlappingEvents.forEach(event => {
+                        if (event.start >= slotStart && event.start < slotEnd) {
+                            const duration = event.end - event.start;
+                            const height = (duration / 60) * 60; // 60px per hour
+                            const topOffset = ((event.start - slotStart) / 60) * 60;
+                            
+                            calendarHtml += `
+                                <div class="class-block" style="top: ${topOffset}px; height: ${height}px;" title="${event.code} - ${event.name}\n${event.type}\n${event.startTime} - ${event.endTime}">
+                                    <div class="class-code">${event.code}</div>
+                                    <div class="class-type">${event.type.substring(0, 15)}${event.type.length > 15 ? '...' : ''}</div>
+                                    <div class="class-time">${event.startTime}-${event.endTime}</div>
+                                </div>
+                            `;
+                        }
+                    });
+                    
+                    calendarHtml += `</div>`;
+                });
+                
+                calendarHtml += `</div>`;
+            });
+            
+            calendarHtml += `
+                    </div>
+                </div>
+            `;
+            
+            return calendarHtml;
+        }
+        
+        function minutesToTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours}:${mins.toString().padStart(2, '0')}`;
+        }
+        
+        // Dark mode functionality
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            const toggle = document.getElementById('darkModeToggle');
+            toggle.textContent = isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
+            
+            // Save preference to localStorage
+            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+        }
+        
+        // Load dark mode preference on page load
+        function loadDarkModePreference() {
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeToggle').textContent = '☀️ Modo Claro';
+            }
         }
         
         // Search functionality
@@ -672,6 +1174,7 @@
         document.getElementById('generateBtn').addEventListener('click', generateSchedules);
         
         // Initialize
+        loadDarkModePreference();
         loadCourses();
     </script>
 </body>
