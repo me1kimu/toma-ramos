@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Encuentra automáticamente horarios de clases sin conflictos para Ingeniería Civil en Informática y Telecomunicaciones">
+    <meta name="theme-color" content="#667eea">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icon-192.png">
+    <title>Buscador de Horarios - ING. CIVIL EN INFORMÁTICA Y TELECOMUNICACIONES</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        /* Mobile header adjustments */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5em;
+            }
+            
+            header p {
+                font-size: 0.9em;
+            }
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .dark-mode-toggle {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        /* Mobile dark mode toggle */
+        @media (max-width: 768px) {
+            .dark-mode-toggle {
+                top: 15px;
+                right: 15px;
+                padding: 6px 12px;
+                font-size: 0.9em;
+            }
+        }
+        
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+        
+        /* Mobile: Stack sidebar and content vertically */
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+        }
+        
+        .sidebar {
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            padding: 25px;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+        
+        /* Mobile sidebar adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid #dee2e6;
+                padding: 15px;
+                max-height: none;
+            }
+        }
+        
+        .main-content {
+            padding: 25px;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+        
+        /* Mobile main content adjustments */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+                max-height: none;
+            }
+        }
+        
+        .section-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        .course-search {
+            margin-bottom: 20px;
+        }
+        
+        .course-search input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .course-search input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .course-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .course-item {
+            padding: 12px;
+            border-bottom: 1px solid #f1f3f5;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .course-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .course-item.selected {
+            background: #e7f5ff;
+            border-left: 4px solid #667eea;
+        }
+        
+        .course-code {
+            font-weight: bold;
+            color: #495057;
+            font-size: 0.95em;
+        }
+        
+        .course-name {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-top: 3px;
+        }
+        
+        .course-credits {
+            font-size: 0.8em;
+            color: #868e96;
+            margin-top: 3px;
+        }
+        
+        .selected-courses {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+        }
+        
+        .selected-course-tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin: 5px 5px 5px 0;
+            font-size: 0.9em;
+        }
+        
+        .selected-course-tag .remove {
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .schedule-results {
+            margin-top: 20px;
+        }
+        
+        .schedule-card {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .schedule-card:hover {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+        
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .schedule-number {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .course-schedule {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .course-schedule-header {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .course-section {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .event-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f3f5;
+            display: grid;
+            grid-template-columns: 150px 200px 1fr;
+            gap: 15px;
+            font-size: 0.9em;
+        }
+        
+        /* Mobile: Stack event details vertically */
+        @media (max-width: 768px) {
+            .event-item {
+                grid-template-columns: 1fr;
+                gap: 5px;
+                padding: 10px 0;
+            }
+        }
+        
+        .event-item:last-child {
+            border-bottom: none;
+        }
+        
+        .event-type {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .event-schedule {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .event-professor {
+            color: #6c757d;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .no-results-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .calendar-view {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(5, 1fr);
+            gap: 2px;
+            background: #dee2e6;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            min-width: 700px;
+        }
+        
+        /* Mobile calendar: Horizontal scroll */
+        @media (max-width: 768px) {
+            .calendar-grid {
+                min-width: 600px;
+                font-size: 0.85em;
+            }
+            
+            .calendar-container {
+                overflow-x: auto;
+            }
+        }
+        
+        .calendar-header {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .time-slot {
+            background: #f8f9fa;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.85em;
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        .calendar-cell {
+            background: white;
+            padding: 8px;
+            min-height: 60px;
+            font-size: 0.8em;
+        }
+        
+        .calendar-event {
+            background: #e7f5ff;
+            border-left: 3px solid #667eea;
+            padding: 5px;
+            margin: 2px 0;
+            border-radius: 3px;
+        }
+        
+        .info-message {
+            background: #e7f5ff;
+            border-left: 4px solid #1c7ed6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        /* Mobile stats: wrap if needed */
+        @media (max-width: 768px) {
+            .stats {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .stat-item {
+                min-width: 45%;
+            }
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .optimization-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        
+        .optimization-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .event-campus {
+            color: #868e96;
+            font-size: 0.85em;
+            margin-top: 3px;
+        }
+        
+        .optimization-badge {
+            display: inline-block;
+            background: #e7f5ff;
+            color: #1c7ed6;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        /* Dark mode styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        body.dark-mode .container {
+            background: #0f3460;
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        body.dark-mode .sidebar {
+            background: #16213e;
+            border-right: 1px solid #1a1a2e;
+        }
+        
+        body.dark-mode .section-title {
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .course-search input {
+            background: #0f3460;
+            border-color: #1a1a2e;
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .course-list {
+            background: #0f3460;
+            border-color: #1a1a2e;
+        }
+        
+        body.dark-mode .course-item {
+            border-bottom: 1px solid #1a1a2e;
+        }
+        
+        body.dark-mode .course-item:hover {
+            background: #1a1a2e;
+        }
+        
+        body.dark-mode .course-item.selected {
+            background: #16213e;
+            border-left-color: #667eea;
+        }
+        
+        body.dark-mode .course-code {
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .course-name,
+        body.dark-mode .course-credits {
+            color: #b0b0b0;
+        }
+        
+        body.dark-mode .selected-course-tag {
+            background: #667eea;
+            color: white;
+        }
+        
+        body.dark-mode .optimization-select {
+            background: #0f3460;
+            border-color: #1a1a2e;
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        body.dark-mode .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        body.dark-mode .schedule-card {
+            background: #16213e;
+            border-color: #1a1a2e;
+        }
+        
+        body.dark-mode .schedule-card:hover {
+            border-color: #667eea;
+        }
+        
+        body.dark-mode .course-schedule {
+            background: #0f3460;
+            border-left-color: #667eea;
+        }
+        
+        body.dark-mode .course-schedule-header {
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .course-section {
+            color: #b0b0b0;
+        }
+        
+        body.dark-mode .event-type {
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .event-professor,
+        body.dark-mode .event-campus {
+            color: #b0b0b0;
+        }
+        
+        body.dark-mode .info-message {
+            background: #16213e;
+            border-left-color: #667eea;
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .stats {
+            background: #16213e;
+        }
+        
+        body.dark-mode .stat-label {
+            color: #b0b0b0;
+        }
+        
+        body.dark-mode .calendar-header {
+            background: #667eea;
+        }
+        
+        body.dark-mode .time-slot {
+            background: #16213e;
+            color: #e8e8e8;
+        }
+        
+        body.dark-mode .calendar-cell {
+            background: #0f3460;
+        }
+        
+        body.dark-mode .calendar-event {
+            background: #16213e;
+            border-left-color: #667eea;
+        }
+        
+        /* Calendar view styles */
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+        
+        .view-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .view-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .view-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        body.dark-mode .view-btn {
+            background: #0f3460;
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        body.dark-mode .view-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .calendar-view {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .calendar-view.active {
+            display: block;
+        }
+        
+        .list-view {
+            display: block;
+        }
+        
+        .list-view.hidden {
+            display: none;
+        }
+        
+        .weekly-calendar {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        body.dark-mode .weekly-calendar {
+            background: #16213e;
+        }
+        
+        .calendar-header-row {
+            display: grid;
+            grid-template-columns: 100px repeat(5, 1fr);
+            background: #667eea;
+            color: white;
+        }
+        
+        .calendar-header-cell {
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .calendar-header-cell:last-child {
+            border-right: none;
+        }
+        
+        .calendar-body {
+            display: grid;
+            grid-template-columns: 100px repeat(5, 1fr);
+            min-height: 400px;
+        }
+        
+        .time-column {
+            background: #f8f9fa;
+            border-right: 2px solid #dee2e6;
+        }
+        
+        body.dark-mode .time-column {
+            background: #0f3460;
+            border-right-color: #1a1a2e;
+        }
+        
+        .time-label {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 0.85em;
+            color: #495057;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        body.dark-mode .time-label {
+            border-bottom-color: #1a1a2e;
+            color: #b0b0b0;
+        }
+        
+        .day-column {
+            border-right: 1px solid #dee2e6;
+            position: relative;
+        }
+        
+        body.dark-mode .day-column {
+            border-right-color: #1a1a2e;
+        }
+        
+        .day-column:last-child {
+            border-right: none;
+        }
+        
+        .calendar-slot {
+            height: 60px;
+            border-bottom: 1px solid #dee2e6;
+            position: relative;
+        }
+        
+        body.dark-mode .calendar-slot {
+            border-bottom-color: #1a1a2e;
+        }
+        
+        .class-block {
+            position: absolute;
+            left: 2px;
+            right: 2px;
+            background: #e7f5ff;
+            border-left: 3px solid #667eea;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .class-block:hover {
+            transform: scale(1.02);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            z-index: 10;
+        }
+        
+        body.dark-mode .class-block {
+            background: #1a1a2e;
+            border-left-color: #667eea;
+        }
+        
+        .class-code {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 2px;
+        }
+        
+        .class-type {
+            color: #495057;
+            font-size: 0.9em;
+        }
+        
+        body.dark-mode .class-type {
+            color: #b0b0b0;
+        }
+        
+        .class-time {
+            color: #6c757d;
+            font-size: 0.85em;
+            margin-top: 2px;
+        }
+        
+        body.dark-mode .class-time {
+            color: #808080;
+        }
+        
+        .class-name {
+            color: #495057;
+            font-size: 0.85em;
+            margin-top: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        body.dark-mode .class-name {
+            color: #b0b0b0;
+        }
+        
+        /* Fullscreen mode */
+        .fullscreen-calendar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 10000;
+            overflow: auto;
+            padding: 20px;
+        }
+        
+        /* Mobile fullscreen calendar */
+        @media (max-width: 768px) {
+            .fullscreen-calendar {
+                padding: 10px;
+            }
+        }
+        
+        body.dark-mode .fullscreen-calendar {
+            background: #0f3460;
+        }
+        
+        .fullscreen-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        /* Mobile fullscreen header */
+        @media (max-width: 768px) {
+            .fullscreen-header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .fullscreen-title {
+                font-size: 1.2em !important;
+                text-align: center;
+            }
+        }
+        
+        body.dark-mode .fullscreen-header {
+            background: #16213e;
+        }
+        
+        .fullscreen-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        body.dark-mode .fullscreen-title {
+            color: #e8e8e8;
+        }
+        
+        .btn-fullscreen {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-left: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-fullscreen:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+        
+        .btn-close-fullscreen {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .btn-close-fullscreen:hover {
+            background: #c82333;
+        }
+        
+        /* Schedule comparison */
+        .schedule-selector {
+            margin-left: 15px;
+        }
+        
+        .schedule-selector input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .compare-toolbar {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        /* Mobile compare toolbar */
+        @media (max-width: 768px) {
+            .compare-toolbar {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                padding: 12px 15px;
+                border-radius: 25px;
+                font-size: 0.9em;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .compare-toolbar button {
+                width: 100%;
+            }
+        }
+        
+        .compare-toolbar.show {
+            display: flex;
+        }
+        
+        .compare-toolbar button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .compare-toolbar button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .compare-view {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        /* Mobile compare view: Stack vertically */
+        @media (max-width: 768px) {
+            .compare-view {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+        
+        .compare-schedule {
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 15px;
+            background: white;
+        }
+        
+        body.dark-mode .compare-schedule {
+            background: #16213e;
+        }
+        
+        .compare-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        /* Professor filter */
+        .professor-filter {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        body.dark-mode .professor-filter {
+            border-top-color: #1a1a2e;
+        }
+        
+        .professor-select {
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            margin-top: 8px;
+            background: white;
+            padding: 8px;
+        }
+        
+        body.dark-mode .professor-select {
+            background: #0f3460;
+            border-color: #1a1a2e;
+        }
+        
+        .professor-option {
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.85em;
+            margin: 2px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        
+        .professor-option:hover {
+            background: #f8f9fa;
+        }
+        
+        body.dark-mode .professor-option:hover {
+            background: #1a1a2e;
+        }
+        
+        .professor-option input[type="checkbox"] {
+            cursor: pointer;
+        }
+        
+        .professor-option.selected {
+            background: #e7f5ff;
+        }
+        
+        body.dark-mode .professor-option.selected {
+            background: #1a4d7a;
+        }
+        
+        .filter-hint {
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        body.dark-mode .filter-hint {
+            color: #808080;
+        }
+        
+        .professor-search {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 0.85em;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+        
+        body.dark-mode .professor-search {
+            background: #0f3460;
+            border-color: #1a1a2e;
+            color: #e8e8e8;
+        }
+        
+        .professor-search:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .selected-professors-count {
+            font-size: 0.85em;
+            color: #667eea;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        
+        /* Footer */
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 2px solid #dee2e6;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        body.dark-mode footer {
+            background: #16213e;
+            border-top-color: #1a1a2e;
+            color: #b0b0b0;
+        }
+        
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button class="dark-mode-toggle" id="darkModeToggle" onclick="toggleDarkMode()">
+                🌙 Modo Oscuro
+            </button>
+            <h1>🎓 Buscador de Horarios</h1>
+            <p>Ingeniería Civil en Informática y Telecomunicaciones</p>
+        </header>
+        
+        <div class="content">
+            <div class="sidebar">
+                <div class="section-title">Selecciona tus Ramos</div>
+                
+                <div class="course-search">
+                    <input type="text" id="searchInput" placeholder="Buscar ramo por código o nombre...">
+                </div>
+                
+                <div class="course-list" id="courseList">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Cargando ramos...
+                    </div>
+                </div>
+                
+                <div class="selected-courses">
+                    <div class="section-title">Ramos Seleccionados (<span id="selectedCount">0</span>)</div>
+                    <div id="selectedCourses"></div>
+                    
+                    <div class="section-title" style="margin-top: 20px;">Optimización</div>
+                    <select id="optimizationSelect" class="optimization-select">
+                        <option value="">Sin optimización</option>
+                        <option value="morning">🌅 Preferir mañanas</option>
+                        <option value="afternoon">🌆 Preferir tardes</option>
+                        <option value="gaps">⚡ Minimizar ventanas</option>
+                    </select>
+                    
+                    <div class="professor-filter">
+                        <div class="section-title">Filtro de Profesores (Opcional)</div>
+                        <input type="text" id="professorSearch" class="professor-search" placeholder="Buscar profesor...">
+                        <div id="professorSelect" class="professor-select">
+                            <!-- Professors will be loaded dynamically -->
+                        </div>
+                        <div id="selectedProfessorsCount" class="selected-professors-count"></div>
+                        <div class="filter-hint">Selecciona los profesores que deseas excluir de la búsqueda.</div>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="generateBtn" disabled>
+                        Generar Horarios
+                    </button>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div id="resultsContainer">
+                    <div class="info-message">
+                        👈 Selecciona los ramos que quieres tomar en el panel izquierdo y luego haz clic en "Generar Horarios" para encontrar combinaciones sin conflictos de horario.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="compare-toolbar" id="compareToolbar">
+        <span id="compareCount">0 horarios seleccionados</span>
+        <button onclick="compareSchedules()">Comparar Horarios</button>
+        <button onclick="clearComparison()">Limpiar</button>
+    </div>
+    
+    <footer>
+        <p>Desarrollado por <a href="https://github.com/me1kimu" target="_blank" rel="noopener noreferrer">@me1kimu</a></p>
+        <p style="margin-top: 5px; font-size: 0.85em;">Buscador de Horarios - ING. CIVIL EN INFORMÁTICA Y TELECOMUNICACIONES</p>
+    </footer>
+    
+    <script>
+        let allCourses = [];
+        let selectedCourses = [];
+        let allSchedules = [];
+        let selectedSchedulesForComparison = [];
+        let allProfessors = [];
+        let selectedProfessors = [];
+        
+        // Load courses on page load
+        async function loadCourses() {
+            try {
+                const response = await fetch('/api/courses');
+                allCourses = await response.json();
+                displayCourses(allCourses);
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                document.getElementById('courseList').innerHTML = 
+                    '<div class="no-results">Error al cargar los ramos</div>';
+            }
+        }
+        
+        // Load professors on page load
+        async function loadProfessors() {
+            try {
+                const response = await fetch('/api/professors');
+                allProfessors = await response.json();
+                displayProfessors(allProfessors);
+            } catch (error) {
+                console.error('Error loading professors:', error);
+                document.getElementById('professorSelect').innerHTML = 
+                    '<div style="padding: 10px; color: #dc3545;">Error al cargar profesores</div>';
+            }
+        }
+        
+        function displayProfessors(professors) {
+            const professorSelect = document.getElementById('professorSelect');
+            
+            if (professors.length === 0) {
+                professorSelect.innerHTML = '<div style="padding: 10px;">No hay profesores disponibles</div>';
+                return;
+            }
+            
+            professorSelect.innerHTML = professors.map(professor => `
+                <label class="professor-option">
+                    <input type="checkbox" value="${professor}" onchange="toggleProfessor('${professor}')">
+                    <span>${professor}</span>
+                </label>
+            `).join('');
+            
+            updateProfessorCount();
+        }
+        
+        function toggleProfessor(professor) {
+            const index = selectedProfessors.indexOf(professor);
+            if (index > -1) {
+                selectedProfessors.splice(index, 1);
+            } else {
+                selectedProfessors.push(professor);
+            }
+            updateProfessorCount();
+        }
+        
+        function updateProfessorCount() {
+            const countElement = document.getElementById('selectedProfessorsCount');
+            if (selectedProfessors.length > 0) {
+                countElement.textContent = `${selectedProfessors.length} profesor(es) excluido(s)`;
+            } else {
+                countElement.textContent = '';
+            }
+        }
+        
+        // Search professors
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('professorSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const filteredProfessors = allProfessors.filter(prof => 
+                        prof.toLowerCase().includes(searchTerm)
+                    );
+                    displayProfessors(filteredProfessors);
+                    
+                    // Restore checkbox states
+                    selectedProfessors.forEach(prof => {
+                        const checkbox = document.querySelector(`input[value="${prof}"]`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                });
+            }
+        });
+        
+        function displayCourses(courses) {
+            const courseList = document.getElementById('courseList');
+            
+            if (courses.length === 0) {
+                courseList.innerHTML = '<div class="no-results">No se encontraron ramos</div>';
+                return;
+            }
+            
+            courseList.innerHTML = courses.map(course => `
+                <div class="course-item" data-code="${course.code}" onclick="toggleCourse('${course.code}')">
+                    <div class="course-code">${course.code}</div>
+                    <div class="course-name">${course.name}</div>
+                    <div class="course-credits">${course.credits} créditos • ${course.sections_count} secciones</div>
+                </div>
+            `).join('');
+        }
+        
+        function toggleCourse(courseCode) {
+            const index = selectedCourses.indexOf(courseCode);
+            
+            if (index > -1) {
+                selectedCourses.splice(index, 1);
+            } else {
+                selectedCourses.push(courseCode);
+            }
+            
+            updateSelectedCourses();
+            updateCourseListSelection();
+        }
+        
+        function updateCourseListSelection() {
+            document.querySelectorAll('.course-item').forEach(item => {
+                const code = item.getAttribute('data-code');
+                if (selectedCourses.includes(code)) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+        
+        function updateSelectedCourses() {
+            const container = document.getElementById('selectedCourses');
+            const count = document.getElementById('selectedCount');
+            const generateBtn = document.getElementById('generateBtn');
+            
+            count.textContent = selectedCourses.length;
+            
+            if (selectedCourses.length === 0) {
+                container.innerHTML = '<p style="color: #6c757d; font-size: 0.9em;">Ningún ramo seleccionado</p>';
+                generateBtn.disabled = true;
+            } else {
+                container.innerHTML = selectedCourses.map(code => {
+                    const course = allCourses.find(c => c.code === code);
+                    return `
+                        <span class="selected-course-tag">
+                            ${code}
+                            <span class="remove" onclick="toggleCourse('${code}')">&times;</span>
+                        </span>
+                    `;
+                }).join('');
+                generateBtn.disabled = false;
+            }
+        }
+        
+        async function generateSchedules() {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const generateBtn = document.getElementById('generateBtn');
+            const optimization = document.getElementById('optimizationSelect').value;
+            
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generando...';
+            
+            resultsContainer.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Buscando combinaciones válidas de horarios...
+                </div>
+            `;
+            
+            try {
+                const response = await fetch('/api/generate-schedules', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        courses: selectedCourses,
+                        max_results: 50,
+                        optimization: optimization || null,
+                        exclude_professors: selectedProfessors.length > 0 ? selectedProfessors.join(',') : null
+                    })
+                });
+                
+                const data = await response.json();
+                allSchedules = data.schedules;
+                displaySchedules(data.schedules, data.count, data.optimization);
+            } catch (error) {
+                console.error('Error generating schedules:', error);
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">⚠️</div>
+                        <div>Error al generar horarios. Por favor intenta nuevamente.</div>
+                    </div>
+                `;
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generar Horarios';
+            }
+        }
+        
+        function displaySchedules(schedules, count, optimization) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            if (schedules.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">😔</div>
+                        <div><strong>No se encontraron horarios compatibles</strong></div>
+                        <div style="margin-top: 10px;">Los ramos seleccionados tienen conflictos de horario en todas las combinaciones posibles.</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            const optimizationLabels = {
+                'morning': '🌅 Preferir mañanas',
+                'afternoon': '🌆 Preferir tardes',
+                'gaps': '⚡ Minimizar ventanas'
+            };
+            
+            const optimizationBadge = optimization ? 
+                `<span class="optimization-badge">${optimizationLabels[optimization]}</span>` : '';
+            
+            const statsHtml = `
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number">${count}</div>
+                        <div class="stat-label">Horarios Válidos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${selectedCourses.length}</div>
+                        <div class="stat-label">Ramos</div>
+                    </div>
+                </div>
+                ${optimization ? `<div style="text-align: center; margin-bottom: 20px;">${optimizationBadge}</div>` : ''}
+            `;
+            
+            const schedulesHtml = schedules.map((schedule, index) => {
+                const coursesHtml = Object.entries(schedule).map(([code, info]) => `
+                    <div class="course-schedule">
+                        <div class="course-schedule-header">
+                            ${code} - ${info.name}
+                        </div>
+                        <div class="course-section">
+                            📋 ${info.section} • 📦 ${info.package}
+                        </div>
+                        ${info.events.map(event => `
+                            <div class="event-item">
+                                <div class="event-type">${event.type}</div>
+                                <div class="event-schedule">${event.schedule}</div>
+                                <div>
+                                    <div class="event-professor">${event.professor || 'Sin profesor asignado'}</div>
+                                    <div class="event-campus">📍 ${event.campus || 'Sin sede'}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `).join('');
+                
+                const calendarHtml = generateCalendarView(schedule, index);
+                
+                return `
+                    <div class="schedule-card">
+                        <div class="schedule-header">
+                            <div style="display: flex; align-items: center;">
+                                <div class="schedule-selector">
+                                    <input type="checkbox" id="schedule-check-${index}" 
+                                           onchange="toggleScheduleSelection(${index})"
+                                           title="Seleccionar para comparar">
+                                </div>
+                                <div class="schedule-number">Opción ${index + 1}</div>
+                            </div>
+                            <div>
+                                <button class="btn-fullscreen" onclick="openFullscreen(${index})">
+                                    🔍 Pantalla Completa
+                                </button>
+                            </div>
+                        </div>
+                        <div class="view-toggle">
+                            <button class="view-btn active" onclick="switchView(${index}, 'list')">📋 Vista Lista</button>
+                            <button class="view-btn" onclick="switchView(${index}, 'calendar')">📅 Vista Calendario</button>
+                        </div>
+                        <div class="list-view" id="list-view-${index}">
+                            ${coursesHtml}
+                        </div>
+                        <div class="calendar-view" id="calendar-view-${index}">
+                            ${calendarHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            resultsContainer.innerHTML = statsHtml + schedulesHtml;
+            selectedSchedulesForComparison = [];
+            updateCompareToolbar();
+        }
+        
+        function switchView(scheduleIndex, viewType) {
+            const listView = document.getElementById(`list-view-${scheduleIndex}`);
+            const calendarView = document.getElementById(`calendar-view-${scheduleIndex}`);
+            const buttons = document.querySelectorAll(`.schedule-card:nth-child(${scheduleIndex + 2}) .view-btn`);
+            
+            if (viewType === 'list') {
+                listView.style.display = 'block';
+                calendarView.classList.remove('active');
+                buttons[0].classList.add('active');
+                buttons[1].classList.remove('active');
+            } else {
+                listView.style.display = 'none';
+                calendarView.classList.add('active');
+                buttons[0].classList.remove('active');
+                buttons[1].classList.add('active');
+            }
+        }
+        
+        function generateCalendarView(schedule, scheduleIndex) {
+            const days = ['LU', 'MA', 'MI', 'JU', 'VI'];
+            const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+            const timeSlots = [];
+            
+            // Generate time slots from 8:00 to 20:00
+            for (let hour = 8; hour <= 20; hour++) {
+                timeSlots.push(`${hour}:00`);
+            }
+            
+            // Organize events by day and time
+            const dayEvents = {};
+            days.forEach(day => dayEvents[day] = []);
+            
+            Object.entries(schedule).forEach(([code, info]) => {
+                info.events.forEach(event => {
+                    if (event.parsed_schedule) {
+                        event.parsed_schedule.forEach(([day, startMin, endMin]) => {
+                            if (dayEvents[day]) {
+                                dayEvents[day].push({
+                                    code: code,
+                                    name: info.name,
+                                    type: event.type,
+                                    start: startMin,
+                                    end: endMin,
+                                    startTime: minutesToTime(startMin),
+                                    endTime: minutesToTime(endMin)
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+            
+            let calendarHtml = `
+                <div class="weekly-calendar" id="calendar-${scheduleIndex}">
+                    <div class="calendar-header-row">
+                        <div class="calendar-header-cell">Hora</div>
+                        ${dayNames.map(name => `<div class="calendar-header-cell">${name}</div>`).join('')}
+                    </div>
+                    <div class="calendar-body">
+                        <div class="time-column">
+                            ${timeSlots.map(time => `<div class="time-label">${time}</div>`).join('')}
+                        </div>
+            `;
+            
+            days.forEach(day => {
+                const events = dayEvents[day];
+                calendarHtml += `<div class="day-column">`;
+                
+                timeSlots.forEach((time, slotIndex) => {
+                    const slotStart = (8 + slotIndex) * 60;
+                    const slotEnd = slotStart + 60;
+                    
+                    // Find events that overlap with this slot
+                    const overlappingEvents = events.filter(event => 
+                        event.start < slotEnd && event.end > slotStart
+                    );
+                    
+                    calendarHtml += `<div class="calendar-slot">`;
+                    
+                    // Only show event in the slot where it starts
+                    overlappingEvents.forEach(event => {
+                        if (event.start >= slotStart && event.start < slotEnd) {
+                            const duration = event.end - event.start;
+                            const height = (duration / 60) * 60; // 60px per hour
+                            const topOffset = ((event.start - slotStart) / 60) * 60;
+                            
+                            calendarHtml += `
+                                <div class="class-block" style="top: ${topOffset}px; height: ${height}px;" title="${event.code} - ${event.name}\n${event.type}\n${event.startTime} - ${event.endTime}">
+                                    <div class="class-code">${event.code}</div>
+                                    <div class="class-name">${event.name.substring(0, 25)}${event.name.length > 25 ? '...' : ''}</div>
+                                    <div class="class-type">${event.type.substring(0, 15)}${event.type.length > 15 ? '...' : ''}</div>
+                                    <div class="class-time">${event.startTime}-${event.endTime}</div>
+                                </div>
+                            `;
+                        }
+                    });
+                    
+                    calendarHtml += `</div>`;
+                });
+                
+                calendarHtml += `</div>`;
+            });
+            
+            calendarHtml += `
+                    </div>
+                </div>
+            `;
+            
+            return calendarHtml;
+        }
+        
+        function minutesToTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours}:${mins.toString().padStart(2, '0')}`;
+        }
+        
+        // Fullscreen functionality
+        function openFullscreen(scheduleIndex) {
+            const calendar = document.getElementById(`calendar-${scheduleIndex}`);
+            if (!calendar) return;
+            
+            const fullscreenDiv = document.createElement('div');
+            fullscreenDiv.className = 'fullscreen-calendar';
+            if (document.body.classList.contains('dark-mode')) {
+                fullscreenDiv.classList.add('dark-mode');
+            }
+            
+            fullscreenDiv.innerHTML = `
+                <div class="fullscreen-header">
+                    <div class="fullscreen-title">Opción ${scheduleIndex + 1} - Vista de Calendario</div>
+                    <button class="btn-close-fullscreen" onclick="closeFullscreen()">✕ Cerrar</button>
+                </div>
+                ${calendar.outerHTML}
+            `;
+            
+            document.body.appendChild(fullscreenDiv);
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeFullscreen() {
+            const fullscreenDiv = document.querySelector('.fullscreen-calendar');
+            if (fullscreenDiv) {
+                fullscreenDiv.remove();
+                document.body.style.overflow = 'auto';
+            }
+        }
+        
+        // Schedule comparison functionality
+        function toggleScheduleSelection(scheduleIndex) {
+            const checkbox = document.getElementById(`schedule-check-${scheduleIndex}`);
+            
+            if (checkbox.checked) {
+                if (selectedSchedulesForComparison.length < 2) {
+                    selectedSchedulesForComparison.push(scheduleIndex);
+                } else {
+                    checkbox.checked = false;
+                    alert('Solo puedes comparar 2 horarios a la vez');
+                    return;
+                }
+            } else {
+                const index = selectedSchedulesForComparison.indexOf(scheduleIndex);
+                if (index > -1) {
+                    selectedSchedulesForComparison.splice(index, 1);
+                }
+            }
+            
+            updateCompareToolbar();
+        }
+        
+        function updateCompareToolbar() {
+            const toolbar = document.getElementById('compareToolbar');
+            const countSpan = document.getElementById('compareCount');
+            
+            countSpan.textContent = `${selectedSchedulesForComparison.length} horarios seleccionados`;
+            
+            if (selectedSchedulesForComparison.length === 2) {
+                toolbar.classList.add('show');
+            } else {
+                toolbar.classList.remove('show');
+            }
+        }
+        
+        function clearComparison() {
+            selectedSchedulesForComparison.forEach(index => {
+                const checkbox = document.getElementById(`schedule-check-${index}`);
+                if (checkbox) checkbox.checked = false;
+            });
+            selectedSchedulesForComparison = [];
+            updateCompareToolbar();
+            
+            // Remove comparison view if exists
+            const comparisonView = document.getElementById('comparison-view');
+            if (comparisonView) {
+                comparisonView.remove();
+            }
+        }
+        
+        function compareSchedules() {
+            if (selectedSchedulesForComparison.length !== 2) {
+                alert('Debes seleccionar exactamente 2 horarios para comparar');
+                return;
+            }
+            
+            const [index1, index2] = selectedSchedulesForComparison;
+            const schedule1 = allSchedules[index1];
+            const schedule2 = allSchedules[index2];
+            
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            // Generate comparison HTML
+            const comparisonHtml = `
+                <div id="comparison-view" style="margin-top: 20px;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #667eea; font-size: 1.8em;">Comparación de Horarios</h2>
+                        <button class="btn-primary" style="display: inline-block; width: auto; margin-top: 10px;" 
+                                onclick="closeComparison()">Volver a Resultados</button>
+                    </div>
+                    <div class="compare-view">
+                        <div class="compare-schedule">
+                            <div class="compare-title">Opción ${index1 + 1}</div>
+                            ${generateCalendarView(schedule1, index1)}
+                        </div>
+                        <div class="compare-schedule">
+                            <div class="compare-title">Opción ${index2 + 1}</div>
+                            ${generateCalendarView(schedule2, index2)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            resultsContainer.innerHTML = comparisonHtml;
+        }
+        
+        function closeComparison() {
+            clearComparison();
+            displaySchedules(allSchedules, allSchedules.length, null);
+        }
+        
+        // Dark mode functionality
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            const toggle = document.getElementById('darkModeToggle');
+            toggle.textContent = isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
+            
+            // Save preference to localStorage
+            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+        }
+        
+        // Load dark mode preference on page load
+        function loadDarkModePreference() {
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeToggle').textContent = '☀️ Modo Claro';
+            }
+        }
+        
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = allCourses.filter(course => 
+                course.code.toLowerCase().includes(searchTerm) ||
+                course.name.toLowerCase().includes(searchTerm)
+            );
+            displayCourses(filtered);
+            updateCourseListSelection();
+        });
+        
+        // Generate button click
+        document.getElementById('generateBtn').addEventListener('click', generateSchedules);
+        
+        // Initialize
+        loadDarkModePreference();
+        loadCourses();
+        loadProfessors();
+        
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+        
+        // PWA install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            // Optionally, show a custom install button
+            console.log('PWA install prompt available');
+        });
+    </script>
+</body>
+</html>
